@@ -11,6 +11,19 @@ import hashlib
 from os import listdir
 from os.path import isfile, join
 
+
+def init_hash_file(filehashgen, filename, folder_path):
+    hash_file_path = open(f"{filehashgen}", "w")
+    for i in range(0, len(filename)):
+        gen_hash = gen_hash_from_file(f"{folder_path}\\{filename[i]}")
+        print(f"{filename[i]} : {gen_hash}", file=hash_file_path)
+
+
+def update_hash_file(new_file, old_file):
+    with open(old_file, "r") as firstfile, open(new_file, "w") as secondfile:
+        for line in firstfile:
+            secondfile.write(line)
+
 # Input : file path needed to hash
 def gen_hash_from_file(filepath):
     BUF_SIZE = 65536
@@ -84,9 +97,9 @@ def add_to_dataset(filename):
             process = subprocess.Popen(bash_command, stdout=subprocess.PIPE)
             output, error = process.communicate()
 
-
-
 folder_path = r"D:\Downloads\test"
+file_name_old = open(r"D:\Downloads\file_name.txt", "r")
+list_file_name = file_name_old.readlines()
 file_name = [f for f in listdir(folder_path) if isfile(join(folder_path, f))]
 
 
@@ -96,11 +109,7 @@ for i in range(0, len(file_name)):
     print(f"{file_name[i]} : {gen_hash}", file=hash_file_path_new)
 
 if not os.path.isfile(r"D:\\Downloads\\res\\hash_file.txt"):
-    hash_file_path = open(r"D:\\Downloads\\res\\hash_file.txt", "w")
-    for i in range(0, len(file_name)):
-        gen_hash = gen_hash_from_file(f"D:\\Downloads\\test\\{file_name[i]}")
-        print(f"{file_name[i]} : {gen_hash}", file=hash_file_path)
-    #iocs_to_ids_rules(file_name)
+    init_hash_file(r"D:\\Downloads\\res\\hash_file.txt", file_name, folder_path)
 else:
     my_res = list()
     hash_file_path = open(r"D:\\Downloads\\res\\hash_file.txt", "r")
@@ -109,9 +118,15 @@ else:
     my_line_new = hash_file_path_new.readlines()
     for i in range(0, len(my_line)):
         my_line[i] = str.strip(my_line[i])
+    for i in range(0, len(my_line_new)):
+        for j in range(0, len(my_line_new) - len(my_line)):
+            my_line.append("")
+    for i in range(0, len(my_line_new)):
+        my_line[i] = str.strip(my_line[i])
         my_line_new[i] = str.strip(my_line_new[i])
         if my_line[i] != my_line_new[i]:
-            res = re.split("\s:\s", my_line[i])
+            res = re.split("\s:\s", my_line_new[i])
             my_res.append(res[0])
     print(my_res)
-    #iocs_to_ids_rules(my_res)
+    # iocs_to_ids_rules(my_res)
+    update_hash_file(r"D:\\Downloads\\res\\hash_file_new.txt", r"D:\\Downloads\\res\\hash_file.txt")
