@@ -110,6 +110,8 @@ for i in range(0, len(file_name)):
 
 if not os.path.isfile(r"D:\\Downloads\\res\\hash_file.txt"):
     init_hash_file(r"D:\\Downloads\\res\\hash_file.txt", file_name, folder_path)
+    print(file_name)
+    # iocs_to_ids_rules(file_name)
 else:
     my_res = list()
     hash_file_path = open(r"D:\\Downloads\\res\\hash_file.txt", "r")
