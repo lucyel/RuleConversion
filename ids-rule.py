@@ -25,7 +25,7 @@ def check_indices(indices):
 
 
 def create_index():
-
+    print("do something")
 
 
 def search_iocs(value):
