@@ -10,7 +10,6 @@ import os
 import hashlib
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
-import uuid
 import urllib3
 from os import listdir
 from os.path import isfile, join
@@ -19,7 +18,7 @@ urllib3.disable_warnings()
 
 
 def init_connection(host, protocol, user, password, use_ssl=False, verify_cert=False):
-    return Elasticsearch(hosts=[host], scheme=protocol, http_auth=(user, password), use_ssl=use_ssl, verify_certs=verify_cert)
+    return Elasticsearch(hosts=[host], scheme=protocol, http_auth=(user, password), use_ssl=use_ssl, verify_certs=verify_cert, ssl_show_warn=False)
 
 
 def check_indices(indices):
@@ -35,19 +34,22 @@ def search_iocs(value):
 
 
 def check_type(iocs):
+    if (bool(re.match(r"^#", iocs))) or (bool(re.match(r"^$", iocs))):
+        return "none"
     if (bool(re.match(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", iocs))):
         return "ip"
     elif (bool(re.match(r".*\..*", iocs))):
         return "domain"
 
 
-def add_iocs(indices, iocs, iocs_type, filename):
+def add_iocs(indices, iocs, iocs_type, campaign):
     request_data = [
         {
-        "_index": indices,
-        "iocs": iocs,
-        "iocs_type": iocs_type
-    }
+            "_index": indices,
+            "iocs": iocs,
+            "iocs_type": iocs_type,
+            "campaign": campaign
+        }
     ]
     return bulk(elastic_client, request_data)
 
@@ -93,7 +95,6 @@ def encode_base64(iocs):
     return base64_message
 
 
-
 # Convert ip to rule, output base64 code of domain name to a file, create the rule contain ip rule and a dns rule.
 # Input : a list type of file name, and the string that contain the first char of the rule for IP type.
 def iocs_to_ids_rules(list_file_name, index_name):
@@ -107,7 +108,8 @@ def iocs_to_ids_rules(list_file_name, index_name):
             if (bool(elastic_res['hits']['hits'])):
                 continue
             else:
-                add_iocs(index_name, my_line[j], check_type(my_line[j]), "test")
+                if (check_type(my_line[j]) != "none" ) :
+                    add_iocs(index_name, my_line[j], check_type(my_line[j]), list_file_name[i])
                 if (bool(re.match(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+$", my_line[j]))) and (not re.match(r"^#", my_line[j])):
                     res = re.split(r":", my_line[j])
                     for k in range(0, 1):
@@ -129,8 +131,8 @@ def iocs_to_ids_rules(list_file_name, index_name):
         if not bool(re.match(r"^]$", rule_str)):
             print(f"alert {rule_str} any -> any any (msg:\"something\")", file=outfile)
         rule_str = "["
-    my_file.close()
-    domain_encoded.close()
+    # my_file.close()
+    # domain_encoded.close()
 
 
 def iocs_to_siem_rules():
@@ -185,7 +187,7 @@ for i in range(0, len(file_name)):
 if not os.path.isfile(r"D:\\Downloads\\res\\hash_file.txt"):
     init_hash_file(r"D:\\Downloads\\res\\hash_file.txt", file_name, folder_path)
     print(file_name)
-    # iocs_to_ids_rules(file_name)
+    iocs_to_ids_rules(file_name, "iocs")
 else:
     my_res = list()
     hash_file_path = open(r"D:\\Downloads\\res\\hash_file.txt", "r")
@@ -204,5 +206,5 @@ else:
             res = re.split("\s:\s", my_line_new[i])
             my_res.append(res[0])
     print(my_res)
-    # iocs_to_ids_rules(my_res)
+    iocs_to_ids_rules(my_res, "iocs")
     update_hash_file(r"D:\\Downloads\\res\\hash_file_new.txt", r"D:\\Downloads\\res\\hash_file.txt")
