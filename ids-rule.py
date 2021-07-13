@@ -1,4 +1,3 @@
-# TODO: compare 2 iocs file to check if it is skipable
 # TODO: download folder not from git
 # TODO: check if donwloaded file is type acsii text, if is other type then not download.
 # TODO: convert other iocs format: IP:PORT [done]
@@ -8,9 +7,10 @@ import base64
 import subprocess
 import os
 import hashlib
+import urllib3
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
-import urllib3
+from GitDownloader import download
 from os import listdir
 from os.path import isfile, join
 
@@ -78,15 +78,6 @@ def gen_hash_from_file(filepath):
                 break
             sha256_hash.update(data)
     return sha256_hash.hexdigest()
-
-
-def download_from_git(git_url, return_path):
-    print("do something")
-
-
-def download_from_other(url, return_path):
-    print("do something")
-
 
 def encode_base64(iocs):
     message_bytes = iocs.encode('ascii')
@@ -170,41 +161,53 @@ folder_path = r"D:\Downloads\test"
 file_name_old = open(r"D:\Downloads\file_name.txt", "r")
 list_file_name = file_name_old.readlines()
 file_name = [f for f in listdir(folder_path) if isfile(join(folder_path, f))]
+download_dirs = r"D:\Downloads\list_url.txt"
 elastic_client = init_connection("192.168.252.131", "https", "elastic", "123456", True, False)
 index_name="iocs"
 
-if check_indices(index_name):
-    print("indices exsists")
-else:
-    print("Creating indices")
-    create_index(index_name, indices_body)
+with open(download_dirs, "r") as f:
+    url_line = f.readlines()
+    for i in range(0, len(url_line)):
+        url_line[i] = str.strip(url_line[i])
+        download(url_line[i], "D:\Downloads\download_test", False)
 
-hash_file_path_new = open(r"D:\\Downloads\\res\\hash_file_new.txt", "w")
-for i in range(0, len(file_name)):
-    gen_hash = gen_hash_from_file(f"D:\\Downloads\\test\\{file_name[i]}")
-    print(f"{file_name[i]} : {gen_hash}", file=hash_file_path_new)
+def main():
+    if check_indices(index_name):
+        print("indices exsists")
+    else:
+        print("Creating indices")
+        create_index(index_name, indices_body)
 
-if not os.path.isfile(r"D:\\Downloads\\res\\hash_file.txt"):
-    init_hash_file(r"D:\\Downloads\\res\\hash_file.txt", file_name, folder_path)
-    print(file_name)
-    iocs_to_ids_rules(file_name, "iocs")
-else:
-    my_res = list()
-    hash_file_path = open(r"D:\\Downloads\\res\\hash_file.txt", "r")
-    hash_file_path_new = open(r"D:\\Downloads\\res\\hash_file_new.txt", "r")
-    my_line = hash_file_path.readlines()
-    my_line_new = hash_file_path_new.readlines()
-    for i in range(0, len(my_line)):
-        my_line[i] = str.strip(my_line[i])
-    for i in range(0, len(my_line_new)):
-        for j in range(0, len(my_line_new) - len(my_line)):
-            my_line.append("")
-    for i in range(0, len(my_line_new)):
-        my_line[i] = str.strip(my_line[i])
-        my_line_new[i] = str.strip(my_line_new[i])
-        if my_line[i] != my_line_new[i]:
-            res = re.split("\s:\s", my_line_new[i])
-            my_res.append(res[0])
-    print(my_res)
-    iocs_to_ids_rules(my_res, "iocs")
-    update_hash_file(r"D:\\Downloads\\res\\hash_file_new.txt", r"D:\\Downloads\\res\\hash_file.txt")
+    hash_file_path_new = open(r"D:\\Downloads\\res\\hash_file_new.txt", "w")
+    for i in range(0, len(file_name)):
+        gen_hash = gen_hash_from_file(f"D:\\Downloads\\test\\{file_name[i]}")
+        print(f"{file_name[i]} : {gen_hash}", file=hash_file_path_new)
+
+    if not os.path.isfile(r"D:\\Downloads\\res\\hash_file.txt"):
+        init_hash_file(r"D:\\Downloads\\res\\hash_file.txt", file_name, folder_path)
+        print(file_name)
+        iocs_to_ids_rules(file_name, "iocs")
+    else:
+        my_res = list()
+        hash_file_path = open(r"D:\\Downloads\\res\\hash_file.txt", "r")
+        hash_file_path_new = open(r"D:\\Downloads\\res\\hash_file_new.txt", "r")
+        my_line = hash_file_path.readlines()
+        my_line_new = hash_file_path_new.readlines()
+        for i in range(0, len(my_line)):
+            my_line[i] = str.strip(my_line[i])
+        for i in range(0, len(my_line_new)):
+            for j in range(0, len(my_line_new) - len(my_line)):
+                my_line.append("")
+        for i in range(0, len(my_line_new)):
+            my_line[i] = str.strip(my_line[i])
+            my_line_new[i] = str.strip(my_line_new[i])
+            if my_line[i] != my_line_new[i]:
+                res = re.split("\s:\s", my_line_new[i])
+                my_res.append(res[0])
+        print(my_res)
+        iocs_to_ids_rules(my_res, "iocs")
+        update_hash_file(r"D:\\Downloads\\res\\hash_file_new.txt", r"D:\\Downloads\\res\\hash_file.txt")
+
+
+if __name__ == "__main__":
+    main()
