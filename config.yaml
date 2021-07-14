@@ -3,5 +3,10 @@ elastic_authen:
   scheme: https
   user: elastic
   password: 123456
+  index_name: iocs
 file:
   iocs_folder: D:\Downloads\test
+  list_url: D:\Downloads\list_url.txt
+  list_iocs_folder: D:\Downloads\download_test
+  new_hash: D:\\Downloads\\res\\hash_file_new.txt
+  old_hash: D:\\Downloads\\res\\hash_file.txt
