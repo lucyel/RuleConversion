@@ -1,0 +1,7 @@
+elastic_authen:
+  host: 192.168.252.131
+  scheme: https
+  user: elastic
+  password: 123456
+file:
+  iocs_folder: D:\Downloads\test

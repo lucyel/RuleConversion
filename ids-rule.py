@@ -9,6 +9,7 @@ import os
 import yaml
 import hashlib
 import urllib3
+import git
 from yaml.loader import SafeLoader
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
@@ -171,11 +172,25 @@ elastic_client = init_connection(f"{vari['elastic_authen']['host']}", f"{vari['e
                                  f"{vari['elastic_authen']['user']}", f"{vari['elastic_authen']['password']}", True, False)
 index_name="iocs"
 
+repo_only_url = re.compile(r"^https:\/\/github.com\/[a-zA-Z0-9\-]*\/[a-zA-Z0-9\-]*$")
+
 with open(list_download_url, "r") as f:
     url_line = f.readlines()
     for i in range(0, len(url_line)):
         url_line[i] = str.strip(url_line[i])
-        download(url_line[i], "D:\Downloads\download_test", False)
+        if bool(re.match(repo_only_url, url_line[i])):
+            m = re.search("[a-zA-Z0-9\-]*$", url_line[i])
+            if m:
+                folder_name = m.group(0)
+
+            if not os.path.isdir(fr"D:\Downloads\download_test\{folder_name}"):
+                git.Git("D:\\Downloads\\download_test\\").clone(url_line[i])
+            else:
+                git.Git(fr"D:\Downloads\download_test\{folder_name}").pull()
+        else:
+            download(url_line[i], "D:\Downloads\download_test", False)
+
+
 
 def main():
     if check_indices(index_name):
