@@ -6,8 +6,10 @@ import re
 import base64
 import subprocess
 import os
+import yaml
 import hashlib
 import urllib3
+from yaml.loader import SafeLoader
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 from GitDownloader import download
@@ -15,6 +17,9 @@ from os import listdir
 from os.path import isfile, join
 
 urllib3.disable_warnings()
+
+with open("config.yaml", "r") as ymlfile:
+    vari = yaml.load(ymlfile, Loader=SafeLoader)
 
 
 def init_connection(host, protocol, user, password, use_ssl=False, verify_cert=False):
@@ -158,14 +163,15 @@ indices_body = {
 
 
 folder_path = r"D:\Downloads\test"
-file_name_old = open(r"D:\Downloads\file_name.txt", "r")
-list_file_name = file_name_old.readlines()
-file_name = [f for f in listdir(folder_path) if isfile(join(folder_path, f))]
-download_dirs = r"D:\Downloads\list_url.txt"
-elastic_client = init_connection("192.168.252.131", "https", "elastic", "123456", True, False)
+# file_name_old = open(r"D:\Downloads\file_name.txt", "r")
+# list_file_name = file_name_old.readlines()
+list_iocs_file_name = [f for f in listdir(folder_path) if isfile(join(folder_path, f))]
+list_download_url = r"D:\Downloads\list_url.txt"
+elastic_client = init_connection(f"{vari['elastic_authen']['host']}", f"{vari['elastic_authen']['scheme']}",
+                                 f"{vari['elastic_authen']['user']}", f"{vari['elastic_authen']['password']}", True, False)
 index_name="iocs"
 
-with open(download_dirs, "r") as f:
+with open(list_download_url, "r") as f:
     url_line = f.readlines()
     for i in range(0, len(url_line)):
         url_line[i] = str.strip(url_line[i])
@@ -179,14 +185,14 @@ def main():
         create_index(index_name, indices_body)
 
     hash_file_path_new = open(r"D:\\Downloads\\res\\hash_file_new.txt", "w")
-    for i in range(0, len(file_name)):
-        gen_hash = gen_hash_from_file(f"D:\\Downloads\\test\\{file_name[i]}")
-        print(f"{file_name[i]} : {gen_hash}", file=hash_file_path_new)
+    for i in range(0, len(list_iocs_file_name)):
+        gen_hash = gen_hash_from_file(f"D:\\Downloads\\test\\{list_iocs_file_name[i]}")
+        print(f"{list_iocs_file_name[i]} : {gen_hash}", file=hash_file_path_new)
 
     if not os.path.isfile(r"D:\\Downloads\\res\\hash_file.txt"):
-        init_hash_file(r"D:\\Downloads\\res\\hash_file.txt", file_name, folder_path)
-        print(file_name)
-        iocs_to_ids_rules(file_name, "iocs")
+        init_hash_file(r"D:\\Downloads\\res\\hash_file.txt", list_iocs_file_name, folder_path)
+        print(list_iocs_file_name)
+        #iocs_to_ids_rules(list_iocs_file_name, "iocs")
     else:
         my_res = list()
         hash_file_path = open(r"D:\\Downloads\\res\\hash_file.txt", "r")
@@ -202,11 +208,13 @@ def main():
             my_line[i] = str.strip(my_line[i])
             my_line_new[i] = str.strip(my_line_new[i])
             if my_line[i] != my_line_new[i]:
+                print(my_line[i])
+                print(my_line_new[i])
                 res = re.split("\s:\s", my_line_new[i])
                 my_res.append(res[0])
         print(my_res)
-        iocs_to_ids_rules(my_res, "iocs")
-        update_hash_file(r"D:\\Downloads\\res\\hash_file_new.txt", r"D:\\Downloads\\res\\hash_file.txt")
+        #iocs_to_ids_rules(my_res, "iocs")
+        update_hash_file(r"D:\\Downloads\\res\\hash_file.txt", r"D:\\Downloads\\res\\hash_file_new.txt")
 
 
 if __name__ == "__main__":
