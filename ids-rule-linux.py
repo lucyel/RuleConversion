@@ -108,7 +108,6 @@ def iocs_to_ids_rules(file_name, index_name):
         if (bool(elastic_res['hits']['hits'])):
             continue
         else:
-            start = time.time()
             if (check_type(my_line[i]) != "none"):
                 add_iocs(index_name, my_line[i], check_type(my_line[i]), file_name)
                 if (bool(re.match(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+$", my_line[i]))) and (not re.match(r"^#", my_line[i])):
@@ -123,8 +122,6 @@ def iocs_to_ids_rules(file_name, index_name):
                     rule_str += ","
                 elif (bool(re.match(r".*\..*", my_line[i]))) and (not re.match(r"^#", my_line[i])):
                     print(encode_base64(my_line[i]), file=domain_encoded)
-            end = time.time()
-    print(f"{end - start} : {file_name}")
     rule_str = rule_str[:-1]
     rule_str += "]"
     outfile = open(f"{vari['file']['output_dir']}/{res_rule_name[0]}_{res_rule_name[1]}.rules", "w")
@@ -218,7 +215,10 @@ def main():
                 gen_hash = gen_hash_from_file(fr"{vari['file']['list_iocs_folder']}/{list_iocs_folder_name[k]}/{list_iocs_file_name[i]}")
                 print(f"{list_iocs_folder_name[k]}/{list_iocs_file_name[i]} : {gen_hash}", file=hash_file_path)
                 #print(list_iocs_file_name[i])
+                start = time.time()
                 iocs_to_ids_rules(fr"{list_iocs_folder_name[k]}/{list_iocs_file_name[i]}", "iocs")
+                end = time.time()
+                print(f"{end - start} : {list_iocs_folder_name[k]}/{list_iocs_file_name[i]}")
         hash_file_path.close()
     else:
         my_res = list()
@@ -239,7 +239,10 @@ def main():
                 my_res.append(res[0])
         for i in range(0, len(my_res)):
             #print(my_res[i])
+            start = time.time()
             iocs_to_ids_rules(my_res[i], "iocs")
+            end = time.time()
+            print(f"{end - start} : {my_res[i]}")
         update_hash_file(fr"{vari['file']['old_hash']}", fr"{vari['file']['new_hash']}")
 
 

@@ -3,7 +3,7 @@ import os
 import urllib.request
 import json
 import yaml
-from GitDownloader import download
+from yaml.loader import SafeLoader
 
 with open("config.yaml", "r") as ymlfile:
     vari = yaml.load(ymlfile, Loader=SafeLoader)
@@ -51,7 +51,6 @@ def download(repo_url, output_dir, flatten=False,):
             else:
                 path = file["path"]
             dirname = os.path.dirname(path)
-            print(dirname)
             path_1 = path.split("/")
 
             path2 = f"{path_1[-2]}/{path_1[-1]}"
