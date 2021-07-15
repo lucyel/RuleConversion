@@ -10,3 +10,4 @@ file:
   list_iocs_folder: D:\Downloads\download_test
   new_hash: D:\\Downloads\\res\\hash_file_new.txt
   old_hash: D:\\Downloads\\res\\hash_file.txt
+  output_dir: D:\\Downloads\\res
