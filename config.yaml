@@ -1,16 +1,16 @@
 elastic_authen:
-  host: 192.168.252.131
-  scheme: https
-  user: elastic
-  password: 123456
-  index_name: iocs
+  host: #Elastic host ip (192.168.0.1)
+  scheme: #Elastic scheme (https or http)
+  user: #ELastic user
+  password: #Password
+  index_name: #Index to manage iocs
 file:
-  iocs_folder: D:\Downloads\test
-  list_url: D:\Downloads\list_url.txt
-  list_iocs_folder: D:\Downloads\download_test
-  new_hash: D:\\Downloads\\res\\hash_file_new.txt
-  old_hash: D:\\Downloads\\res\\hash_file.txt
-  output_dir: D:\\Downloads\\res
+  iocs_folder:
+  list_url: #File contain list of url to download iocs folder or git repo
+  list_iocs_folder: #Folder to contain all iocs
+  new_hash: #File contain new hash of all file
+  old_hash: #File contain old hash
+  output_dir: #Folder where result goes
 network:
-  proxy_http:
+  proxy_http: 
   proxy_https:

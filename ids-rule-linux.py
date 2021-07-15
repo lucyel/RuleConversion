@@ -175,25 +175,24 @@ elastic_client = init_connection(f"{vari['elastic_authen']['host']}", f"{vari['e
 
 repo_only_url = re.compile(r"^https:\/\/github.com\/[a-zA-Z0-9\-]*\/[a-zA-Z0-9\-]*$")
 
-with open(vari['file']['list_url'], "r") as f:
-    url_line = f.readlines()
-    for i in range(0, len(url_line)):
-        url_line[i] = str.strip(url_line[i])
-        if bool(re.match(repo_only_url, url_line[i])):
-            m = re.search("[a-zA-Z0-9\-]*$", url_line[i])
-            if m:
-                folder_name = m.group(0)
-
-            if not os.path.isdir(fr"{vari['file']['list_iocs_folder']}/{folder_name}"):
-                git.Git(f"{vari['file']['list_iocs_folder']}").clone(url_line[i])
-            else:
-                git.Git(fr"{vari['file']['list_iocs_folder']}/{folder_name}").pull()
-        else:
-            download(url_line[i], f"{vari['file']['list_iocs_folder']}", False)
-
-
 
 def main():
+    with open(vari['file']['list_url'], "r") as f:
+        url_line = f.readlines()
+        for i in range(0, len(url_line)):
+            url_line[i] = str.strip(url_line[i])
+            if bool(re.match(repo_only_url, url_line[i])):
+                m = re.search("[a-zA-Z0-9\-]*$", url_line[i])
+                if m:
+                    folder_name = m.group(0)
+    
+                if not os.path.isdir(fr"{vari['file']['list_iocs_folder']}/{folder_name}"):
+                    git.Git(f"{vari['file']['list_iocs_folder']}").clone(url_line[i])
+                else:
+                    git.Git(fr"{vari['file']['list_iocs_folder']}/{folder_name}").pull()
+            else:
+                download(url_line[i], f"{vari['file']['list_iocs_folder']}", False)
+
     if check_indices(f"{vari['elastic_authen']['index_name']}"):
         print("indices exsists")
     else:
