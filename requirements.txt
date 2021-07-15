@@ -1,0 +1,9 @@
+elasticsearch==7.13.1
+GitPython==3.1.18
+libmagic==1.0
+PyGithub==1.55
+python-magic==0.4.22
+python-magic-bin==0.4.14
+PyYAML==5.4.1
+requests==2.25.1
+urllib3==1.26.4
