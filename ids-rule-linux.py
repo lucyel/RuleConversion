@@ -107,6 +107,7 @@ def iocs_to_ids_rules(file_name, index_name):
         if (bool(elastic_res['hits']['hits'])):
             continue
         else:
+            start = time.time()
             if (check_type(my_line[i]) != "none"):
                 add_iocs(index_name, my_line[i], check_type(my_line[i]), file_name)
                 if (bool(re.match(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+$", my_line[i]))) and (not re.match(r"^#", my_line[i])):
@@ -121,6 +122,8 @@ def iocs_to_ids_rules(file_name, index_name):
                     rule_str += ","
                 elif (bool(re.match(r".*\..*", my_line[i]))) and (not re.match(r"^#", my_line[i])):
                     print(encode_base64(my_line[i]), file=domain_encoded)
+            end = time.time()
+    print(f"{end - start} : {file_name}")
     rule_str = rule_str[:-1]
     rule_str += "]"
     outfile = open(f"{vari['file']['output_dir']}/{res_rule_name[0]}_{res_rule_name[1]}.rules", "w")
