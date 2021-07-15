@@ -99,7 +99,7 @@ def iocs_to_ids_rules(file_name, index_name):
     rule_str = "["
     my_file = open(fr"{vari['file']['list_iocs_folder']}\{file_name}", "r")
     res = re.split(r"\\", file_name)
-    domain_encoded = open(f"D:\\Downloads\\res\\encoded_{res[0]}_{res[1]}", "a")
+    domain_encoded = open(f"{vari['file']['output_dir']}\\encoded_{res[0]}_{res[1]}", "a")
     my_line = my_file.readlines()
     for i in range(0, len(my_line)):
         # print(my_line[i])
@@ -138,7 +138,7 @@ def iocs_to_siem_rules():
 # Run only in linux
 def add_to_dataset(filename):
     for i in range(0, len(filename)):
-        domain_encoded = open(f"D:\\Downloads\\res\\encoded_{filename[i]}", "r")
+        domain_encoded = open(f"{vari['file']['output_dir']}\\encoded_{filename[i]}", "r")
         encode_dns = domain_encoded.readlines()
         number_of_elements = len(encode_dns)
         for j in range(0, number_of_elements):
