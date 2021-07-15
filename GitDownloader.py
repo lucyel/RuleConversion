@@ -2,6 +2,11 @@ import re
 import os
 import urllib.request
 import json
+import yaml
+from GitDownloader import download
+
+with open("config.yaml", "r") as ymlfile:
+    vari = yaml.load(ymlfile, Loader=SafeLoader)
 
 
 def create_url(url):
