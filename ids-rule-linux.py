@@ -98,8 +98,8 @@ def encode_base64(iocs):
 def iocs_to_ids_rules(file_name, index_name):
     rule_str = "["
     my_file = open(fr"{vari['file']['list_iocs_folder']}/{file_name}", "r")
-    res = re.split(r"/", file_name)
-    domain_encoded = open(f"{vari['file']['output_dir']}/encoded_{res[0]}_{res[1]}", "a")
+    res_rule_name = re.split(r"/", file_name)
+    domain_encoded = open(f"{vari['file']['output_dir']}/encoded_{res_rule_name[0]}_{res_rule_name[1]}", "a")
     my_line = my_file.readlines()
     for i in range(0, len(my_line)):
         # print(my_line[i])
@@ -123,7 +123,7 @@ def iocs_to_ids_rules(file_name, index_name):
                     print(encode_base64(my_line[i]), file=domain_encoded)
     rule_str = rule_str[:-1]
     rule_str += "]"
-    outfile = open(f"{vari['file']['output_dir']}/{res[0]}_{res[1]}.rules", "w")
+    outfile = open(f"{vari['file']['output_dir']}/{res_rule_name[0]}_{res_rule_name[1]}.rules", "w")
     print(f"alert any any -> any any (msg:\"ET DNS query for {file_name}\"; reference:url,https://github.com/stamparm/maltrail/blob/master/README.md; dns.query; dataset:set, {file_name}, type string, load: {file_name}.lst; sid:202025113; rev:1;))", file=outfile)
     if not bool(re.match(r"^]$", rule_str)):
         print(f"alert {rule_str} any -> any any (msg:\"something\")", file=outfile)
