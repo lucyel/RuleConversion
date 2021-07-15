@@ -24,7 +24,7 @@ def download(repo_url, output_dir, flatten=False,):
     else:
         dir_out = output_dir
 
-    proxy = urllib.request.ProxyHandler({'http': '10.1.7.56:8080', 'https': '10.1.7.56:8080'})
+    proxy = urllib.request.ProxyHandler({"http": f"{vari['network']['proxy_http']}", "https": f"{vari['network']['proxy_http']}"})
     opener = urllib.request.build_opener(proxy)
     opener.addheaders = [('User-agent', 'Mozilla/5.0')]
     urllib.request.install_opener(opener)

@@ -11,3 +11,6 @@ file:
   new_hash: D:\\Downloads\\res\\hash_file_new.txt
   old_hash: D:\\Downloads\\res\\hash_file.txt
   output_dir: D:\\Downloads\\res
+network:
+  proxy_http:
+  proxy_https:
