@@ -9,7 +9,8 @@ import os
 import yaml
 import hashlib
 import urllib3
-# import git
+import git
+import time
 from GitDownloader import download
 import magic
 from yaml.loader import SafeLoader
@@ -87,9 +88,9 @@ def gen_hash_from_file(filepath):
     return sha256_hash.hexdigest()
 
 def encode_base64(iocs):
-    message_bytes = iocs.encode('ascii')
+    message_bytes = iocs.encode('utf-8')
     base64_bytes = base64.b64encode(message_bytes)
-    base64_message = base64_bytes.decode('ascii')
+    base64_message = base64_bytes.decode('utf-8')
     return base64_message
 
 
