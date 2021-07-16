@@ -183,7 +183,7 @@ with open(vari['file']['list_url'], "r") as f:
             else:
                 git.Git(fr"{vari['file']['list_iocs_folder']}/{folder_name}").pull()
         else:
-            total_files = download(url_line[i], f"{vari['file']['list_iocs_folder']}", False)
+            total_files = download(url_line[i], f"{vari['file']['list_iocs_folder']}")
             print(f"Downloaded {total_files}")
 
 list_iocs_folder_name = [f for f in listdir(fr"{vari['file']['list_iocs_folder']}") if isdir(join(fr"{vari['file']['list_iocs_folder']}", f))]

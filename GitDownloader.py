@@ -18,19 +18,12 @@ def create_url(url):
     return api_url, download_dirs
 
 
-def download(repo_url, output_dir, flatten=False,):
+def download(repo_url, output_dir):
     api_url, download_dirs = create_url(repo_url)
 
-    if not flatten:
-        if len(download_dirs.split(".")) == 0:
-            dir_out = os.path.join(output_dir, download_dirs)
-        else:
-            dir_out = os.path.join(output_dir, "/".join(download_dirs.split("/")[:-1]))
-    else:
-        dir_out = output_dir
-
     proxy = urllib.request.ProxyHandler({"http": f"{vari['network']['proxy_http']}", "https": f"{vari['network']['proxy_http']}"})
-    opener = urllib.request.build_opener(proxy)
+    opener = urllib.request.build_opener()
+    #opener = urllib.request.build_opener(proxy)
     opener.addheaders = [('User-agent', 'Mozilla/5.0')]
     urllib.request.install_opener(opener)
     response = urllib.request.urlretrieve(api_url)
@@ -39,33 +32,22 @@ def download(repo_url, output_dir, flatten=False,):
 
     with open(response[0], "r") as f:
         data = json.load(f)
-        # getting the total number of files so that we
-        # can use it for the output information later
         total_files += len(data)
 
         for file in data:
             file_url = file["download_url"]
-
-            if flatten:
-                path = os.path.basename(file["path"])
-            else:
-                path = file["path"]
-            dirname = os.path.dirname(path)
+            path = file["path"]
             path_1 = path.split("/")
-
             path2 = f"{path_1[-2]}/{path_1[-1]}"
+            os.makedirs(f"{output_dir}/{path_1[-2]}", exist_ok=True)
+            download_path = f"{output_dir}/{path2}"
+            opener = urllib.request.build_opener()
+            #opener = urllib.request.build_opener(proxy)
+            opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+            urllib.request.install_opener(opener)
+            urllib.request.urlretrieve(file_url, download_path)
 
-            os.makedirs(fr"{output_dir}/{path_1[-2]}", exist_ok=True)
-
-            if file_url is not None:
-                download_path = fr"{output_dir}/{path2}"
-                opener = urllib.request.build_opener(proxy)
-                opener.addheaders = [('User-agent', 'Mozilla/5.0')]
-                urllib.request.install_opener(opener)
-                # download the file
-                urllib.request.urlretrieve(file_url, download_path)
-            else:
-                download(file["html_url"], flatten, dir_out)
     return total_files
 
-#download("https://github.com/Neo23x0/signature-base/tree/master/iocs", "D:\Downloads\download_test", False)
+
+download("https://github.com/stamparm/maltrail/tree/master/trails/static/suspicious", "D:\Downloads\download_test")
