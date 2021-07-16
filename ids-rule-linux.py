@@ -111,17 +111,17 @@ def iocs_to_ids_rules(file_name, index_name):
         else:
             if (check_type(my_line[i]) != "none"):
                 add_iocs(index_name, my_line[i], check_type(my_line[i]), file_name)
-                if (bool(re.match(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+$", my_line[i]))) and (not re.match(r"^#", my_line[i])):
+                if (bool(re.match(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+$", my_line[i]))):
                     res = re.split(r":", my_line[i])
                     for k in range(0, 1):
                         ip_data = res[0]
                         port_data = res[1]
                         # print(f"{ip_data} and {port_data}")
-                elif (bool(re.match(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", my_line[i]))) and (not re.match(r"^#", my_line[i])):
+                elif check_type(my_line[i]) == "ip":
                     my_line[i] = str.rstrip(my_line[i])
                     rule_str += my_line[i]
                     rule_str += ","
-                elif (bool(re.match(r"^(?=.{1,253}\.?$)(?:(?!-|[^.]+_)[A-Za-z0-9-_]{1,63}(?<!-)(?:\.|$)){2,}$", my_line[i]))) and (not re.match(r"^#", my_line[i])):
+                elif check_type(my_line[i]) == "domain":
                     print(encode_base64(my_line[i]), file=domain_encoded)
     rule_str = rule_str[:-1]
     rule_str += "]"
@@ -163,8 +163,6 @@ indices_body = {
 }
 
 
-# file_name_old = open(r"D:\Downloads\file_name.txt", "r")
-# list_file_name = file_name_old.readlines()
 elastic_client = init_connection(f"{vari['elastic_authen']['host']}", f"{vari['elastic_authen']['scheme']}",
                                  f"{vari['elastic_authen']['user']}", f"{vari['elastic_authen']['password']}", True, False)
 
@@ -213,13 +211,14 @@ def main():
         for k in range(0, len(list_iocs_folder_name)):
             list_iocs_file_name = [f for f in listdir(fr"{vari['file']['list_iocs_folder']}/{list_iocs_folder_name[k]}") if isfile(join(fr"{vari['file']['list_iocs_folder']}/{list_iocs_folder_name[k]}", f))]
             for i in range(0, len(list_iocs_file_name)):
-                gen_hash = gen_hash_from_file(fr"{vari['file']['list_iocs_folder']}/{list_iocs_folder_name[k]}/{list_iocs_file_name[i]}")
-                print(f"{list_iocs_folder_name[k]}/{list_iocs_file_name[i]} : {gen_hash}", file=hash_file_path)
-                #print(list_iocs_file_name[i])
-                start = time.time()
-                iocs_to_ids_rules(fr"{list_iocs_folder_name[k]}/{list_iocs_file_name[i]}", "iocs")
-                end = time.time()
-                print(f"{end - start} : {list_iocs_folder_name[k]}/{list_iocs_file_name[i]}")
+                if magic.from_file(fr"{vari['file']['list_iocs_folder']}/{list_iocs_folder_name[k]}", mime=True) == "text/plain":
+                    gen_hash = gen_hash_from_file(fr"{vari['file']['list_iocs_folder']}/{list_iocs_folder_name[k]}/{list_iocs_file_name[i]}")
+                    print(f"{list_iocs_folder_name[k]}/{list_iocs_file_name[i]} : {gen_hash}", file=hash_file_path)
+                    #print(list_iocs_file_name[i])
+                    start = time.time()
+                    iocs_to_ids_rules(fr"{list_iocs_folder_name[k]}/{list_iocs_file_name[i]}", "iocs")
+                    end = time.time()
+                    print(f"{end - start} : {list_iocs_folder_name[k]}/{list_iocs_file_name[i]}")
         hash_file_path.close()
     else:
         my_res = list()
@@ -239,11 +238,12 @@ def main():
                 res = re.split("\s:\s", my_line_new[i])
                 my_res.append(res[0])
         for i in range(0, len(my_res)):
-            #print(my_res[i])
-            start = time.time()
-            iocs_to_ids_rules(my_res[i], "iocs")
-            end = time.time()
-            print(f"{end - start} : {my_res[i]}")
+            if magic.from_file(fr"{vari['file']['list_iocs_folder']}/{my_res[i]}", mime=True) == "text/plain":
+                #print(my_res[i])
+                start = time.time()
+                iocs_to_ids_rules(my_res[i], "iocs")
+                end = time.time()
+                print(f"{end - start} : {my_res[i]}")
         update_hash_file(fr"{vari['file']['old_hash']}", fr"{vari['file']['new_hash']}")
 
 
