@@ -46,7 +46,7 @@ def check_type(iocs):
         return "none"
     if (bool(re.match(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", iocs))):
         return "ip"
-    elif (bool(re.match(r".*\..*", iocs))):
+    elif (bool(re.match(r"^(?=.{1,253}\.?$)(?:(?!-|[^.]+_)[A-Za-z0-9-_]{1,63}(?<!-)(?:\.|$)){2,}$", iocs))):
         return "domain"
 
 
@@ -101,6 +101,7 @@ def iocs_to_ids_rules(file_name, index_name):
     my_file = open(fr"{vari['file']['list_iocs_folder']}/{file_name}", "r")
     res_rule_name = re.split(r"/", file_name)
     domain_encoded = open(f"{vari['file']['output_dir']}/encoded_{res_rule_name[0]}_{res_rule_name[1]}", "a")
+    outfile = open(f"{vari['file']['output_dir']}/{res_rule_name[0]}_{res_rule_name[1]}.rules", "w")
     my_line = my_file.readlines()
     for i in range(0, len(my_line)):
         # print(my_line[i])
@@ -120,11 +121,10 @@ def iocs_to_ids_rules(file_name, index_name):
                     my_line[i] = str.rstrip(my_line[i])
                     rule_str += my_line[i]
                     rule_str += ","
-                elif (bool(re.match(r".*\..*", my_line[i]))) and (not re.match(r"^#", my_line[i])):
+                elif (bool(re.match(r"^(?=.{1,253}\.?$)(?:(?!-|[^.]+_)[A-Za-z0-9-_]{1,63}(?<!-)(?:\.|$)){2,}$", my_line[i]))) and (not re.match(r"^#", my_line[i])):
                     print(encode_base64(my_line[i]), file=domain_encoded)
     rule_str = rule_str[:-1]
     rule_str += "]"
-    outfile = open(f"{vari['file']['output_dir']}/{res_rule_name[0]}_{res_rule_name[1]}.rules", "w")
     print(f"alert any any -> any any (msg:\"ET DNS query for {file_name}\"; reference:url,https://github.com/stamparm/maltrail/blob/master/README.md; dns.query; dataset:set, {file_name}, type string, load: {file_name}.lst; sid:202025113; rev:1;))", file=outfile)
     if not bool(re.match(r"^]$", rule_str)):
         print(f"alert {rule_str} any -> any any (msg:\"something\")", file=outfile)
@@ -185,7 +185,8 @@ with open(vari['file']['list_url'], "r") as f:
             else:
                 git.Git(fr"{vari['file']['list_iocs_folder']}/{folder_name}").pull()
         else:
-            download(url_line[i], f"{vari['file']['list_iocs_folder']}", False)
+            total_files = download(url_line[i], f"{vari['file']['list_iocs_folder']}", False)
+            print(f"Downloaded {total_files}")
 
 list_iocs_folder_name = [f for f in listdir(fr"{vari['file']['list_iocs_folder']}") if isdir(join(fr"{vari['file']['list_iocs_folder']}", f))]
 
