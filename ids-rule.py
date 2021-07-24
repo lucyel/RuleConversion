@@ -185,7 +185,7 @@ with open(vari['file']['list_url'], "r") as f:
         #     else:
         #         git.Git(fr"{vari['file']['list_iocs_folder']}\{folder_name}").pull()
         # else:
-        download(url_line[i], f"{vari['file']['list_iocs_folder']}")
+        download(url_line[i], f"{vari['file']['list_iocs_folder']}", False)
 
 
 

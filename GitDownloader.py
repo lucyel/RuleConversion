@@ -18,12 +18,14 @@ def create_url(url):
     return api_url, download_dirs
 
 
-def download(repo_url, output_dir):
+def download(repo_url, output_dir, proxy_option=False):
     api_url, download_dirs = create_url(repo_url)
 
-    proxy = urllib.request.ProxyHandler({"http": f"{vari['network']['proxy_http']}", "https": f"{vari['network']['proxy_http']}"})
-    opener = urllib.request.build_opener()
-    #opener = urllib.request.build_opener(proxy)
+    if proxy_option:
+        proxy = urllib.request.ProxyHandler({"http": f"{vari['network']['proxy_http']}", "https": f"{vari['network']['proxy_http']}"})
+        opener = urllib.request.build_opener(proxy)
+    else:
+        opener = urllib.request.build_opener()
     opener.addheaders = [('User-agent', 'Mozilla/5.0')]
     urllib.request.install_opener(opener)
     response = urllib.request.urlretrieve(api_url)
@@ -41,8 +43,10 @@ def download(repo_url, output_dir):
             path2 = f"{path_1[-2]}/{path_1[-1]}"
             os.makedirs(f"{output_dir}/{path_1[-2]}", exist_ok=True)
             download_path = f"{output_dir}/{path2}"
-            opener = urllib.request.build_opener()
-            #opener = urllib.request.build_opener(proxy)
+            if proxy_option:
+                opener = urllib.request.build_opener(proxy)
+            else:
+                opener = urllib.request.build_opener()
             opener.addheaders = [('User-agent', 'Mozilla/5.0')]
             urllib.request.install_opener(opener)
             urllib.request.urlretrieve(file_url, download_path)

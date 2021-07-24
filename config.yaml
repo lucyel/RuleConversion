@@ -5,7 +5,6 @@ elastic_authen:
   password: #Password
   index_name: #Index to manage iocs
 file:
-  iocs_folder:
   list_url: #File contain list of url to download iocs folder or git repo
   list_iocs_folder: #Folder to contain all iocs
   new_hash: #File contain new hash of all file
