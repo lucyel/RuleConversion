@@ -53,5 +53,3 @@ def download(repo_url, output_dir, proxy_option=False):
 
     return total_files
 
-
-download("https://github.com/stamparm/maltrail/tree/master/trails/static/suspicious", "D:\Downloads\download_test")

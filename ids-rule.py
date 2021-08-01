@@ -187,21 +187,21 @@ elastic_client = init_connection(f"{vari['elastic_authen']['host']}", f"{vari['e
 
 repo_only_url = re.compile(r"^https:\/\/github.com\/[a-zA-Z0-9\-]*\/[a-zA-Z0-9\-]*$")
 
-with open(vari['file']['list_url'], "r") as f:
-    url_line = f.readlines()
-    for i in range(0, len(url_line)):
-        url_line[i] = str.strip(url_line[i])
-        # if bool(re.match(repo_only_url, url_line[i])):
-        #     m = re.search("[a-zA-Z0-9\-]*$", url_line[i])
-        #     if m:
-        #         folder_name = m.group(0)
-        #
-        #     if not os.path.isdir(fr"{vari['file']['list_iocs_folder']}\{folder_name}"):
-        #         git.Git(f"{vari['file']['list_iocs_folder']}").clone(url_line[i])
-        #     else:
-        #         git.Git(fr"{vari['file']['list_iocs_folder']}\{folder_name}").pull()
-        # else:
-        download(url_line[i], f"{vari['file']['list_iocs_folder']}", False)
+# with open(vari['file']['list_url'], "r") as f:
+#     url_line = f.readlines()
+#     for i in range(0, len(url_line)):
+#         url_line[i] = str.strip(url_line[i])
+#         # if bool(re.match(repo_only_url, url_line[i])):
+#         #     m = re.search("[a-zA-Z0-9\-]*$", url_line[i])
+#         #     if m:
+#         #         folder_name = m.group(0)
+#         #
+#         #     if not os.path.isdir(fr"{vari['file']['list_iocs_folder']}\{folder_name}"):
+#         #         git.Git(f"{vari['file']['list_iocs_folder']}").clone(url_line[i])
+#         #     else:
+#         #         git.Git(fr"{vari['file']['list_iocs_folder']}\{folder_name}").pull()
+#         # else:
+#         download(url_line[i], f"{vari['file']['list_iocs_folder']}", False)
 
 list_iocs_folder_name = [f for f in listdir(fr"{vari['file']['list_iocs_folder']}") if isdir(join(fr"{vari['file']['list_iocs_folder']}", f))]
 
@@ -231,7 +231,7 @@ def main():
                 print(list_iocs_file_name[i])
                 start = time.time()
                 iocs_to_ids_rules(fr"{list_iocs_folder_name[k]}\{list_iocs_file_name[i]}", "iocs")
-                rule_gen(fr"{list_iocs_folder_name[k]}\{list_iocs_file_name[i]}", f"{vari['file']['siem_outfile']}")
+                rule_gen(fr"{list_iocs_folder_name[k]}\\{list_iocs_file_name[i]}", f"{vari['file']['siem_outfile']}")
                 elk_api_call(f"{vari['file']['siem_outfile']}")
                 end = time.time()
                 print(fr"{end - start} : {list_iocs_folder_name[k]}\{list_iocs_file_name[i]}")
